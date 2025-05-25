@@ -3,9 +3,14 @@ import cors from "cors";
 import router from "./app/routes";
 import http from "http";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
-import { noRouteFound } from "./app/utils/noRouteFound";
+import { noRouteFound } from "./app/utils/serverTool/noRouteFound";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { limiter } from "./app/utils/serverTool/rateLimite";
+import helmet from "helmet";
+import compression from "compression";
+import morgan from "morgan";
+
 const app = express();
 
 const corsOption = {
@@ -14,10 +19,14 @@ const corsOption = {
   credentials: true,
 };
 
+app.use(helmet());
+app.use(morgan("combined"));
+app.use(compression());
 app.use(cors(corsOption));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(limiter);
 
 app.use("/api", router);
 
