@@ -2,7 +2,7 @@ import path from "path";
 
 export const getRelativePath = (filePath: string): string => {
   if (!filePath) {
-    throw new Error("Path not found.");
+    throw new Error("Image not found.");
   }
 
   const uploadDir = path.join(process.cwd(), "uploads"); // Root of the uploads folder
