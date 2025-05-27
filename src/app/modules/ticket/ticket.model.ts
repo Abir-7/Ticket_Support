@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IssueType, ITicket, UserType } from "./ticket.interface";
+import { IssueType, ITicket, TicketStatus, UserType } from "./ticket.interface";
 
 const TicketSchema = new Schema<ITicket>(
   {
@@ -16,6 +16,11 @@ const TicketSchema = new Schema<ITicket>(
       required: true,
     },
     images: [{ type: String, required: true }],
+    status: {
+      type: String,
+      enum: Object.values(TicketStatus),
+      default: TicketStatus.Pending,
+    },
   },
   {
     timestamps: true,

@@ -6,7 +6,15 @@ export interface ITicket {
   issue: IssueType;
   userType: UserType;
   images: string[];
+  status: TicketStatus;
 }
+export enum TicketStatus {
+  Pending = "Pending",
+  InProgress = "InProgress",
+  Solved = "Solved",
+  Rejected = "Rejected",
+}
+
 export enum IssueType {
   Hardware = "Hardware",
   Software = "Software",

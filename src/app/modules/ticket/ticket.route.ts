@@ -13,6 +13,7 @@ router.post(
   parseDataField("data"),
   TicketController.createTicket
 );
+router.get("/my-ticket", auth("USER"), TicketController.getMyTickets);
 router.get("/", TicketController.getAllTickets);
 router.get("/:id", TicketController.getTicketById);
 router.put("/:id", TicketController.updateTicket);

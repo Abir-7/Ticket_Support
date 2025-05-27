@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
 import ChatRoom from "../communication/chatRoom/chatRoom.model";
-import { ITicket } from "./ticket.interface";
+import { ITicket, TicketStatus } from "./ticket.interface";
 import Ticket from "./ticket.model";
 import mongoose from "mongoose";
 
@@ -53,6 +53,25 @@ const createTicket = async (
   }
 };
 
+const getMyTickets = async (userId: string) => {
+  const now = new Date();
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(now.getDate() - 14);
+
+  const [isProgress, recentlySolved] = await Promise.all([
+    Ticket.find({ user: userId, status: TicketStatus.InProgress }).lean(),
+    Ticket.find({
+      user: userId,
+      status: TicketStatus.Solved,
+      updatedAt: { $gte: fourteenDaysAgo, $lte: now },
+    })
+      .sort({ updatedAt: -1 })
+      .lean(),
+  ]);
+
+  return [...isProgress, ...recentlySolved];
+};
+
 const getAllTickets = async () => {
   // TODO: Call repository or model to get all tickets
   // return tickets;
@@ -79,4 +98,5 @@ export const TicketService = {
   getTicketById,
   updateTicket,
   deleteTicket,
+  getMyTickets,
 };

@@ -19,6 +19,16 @@ const createTicket = catchAsync(async (req, res) => {
   });
 });
 
+const getMyTickets = catchAsync(async (req, res) => {
+  const result = await TicketService.getMyTickets(req.user.userId);
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "My Tickets fetched successfully.",
+    data: result,
+  });
+});
+
 const getAllTickets = catchAsync(async (req, res) => {
   const result = await TicketService.getAllTickets();
   sendResponse(res, {
@@ -69,4 +79,5 @@ export const TicketController = {
   getTicketById,
   updateTicket,
   deleteTicket,
+  getMyTickets,
 };
