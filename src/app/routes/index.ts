@@ -14,6 +14,7 @@ const apiRoutes = [
   { path: "/ticket", route: TicketRoute },
   { path: "/product", route: ProductRoute },
   { path: "/brand", route: BrandRoute },
+  { path: "/ticket", route: TicketRoute },
 ];
 apiRoutes.forEach((route) => router.use(route.path, route.route));
 export default router;

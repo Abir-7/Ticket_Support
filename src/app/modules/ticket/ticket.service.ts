@@ -1,9 +1,56 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
+import ChatRoom from "../communication/chatRoom/chatRoom.model";
 import { ITicket } from "./ticket.interface";
+import Ticket from "./ticket.model";
+import mongoose from "mongoose";
 
-const createTicket = async (ticketData: ITicket) => {
-  // TODO: Call repository or model to create a ticket
-  // return createdTicket;
+const createTicket = async (
+  ticketData: Partial<ITicket>,
+  userId: string,
+  imageArr: Express.Multer.File[]
+) => {
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const images = imageArr.map((image) => getRelativePath(image.path));
+
+    const addTicket = await Ticket.create(
+      [
+        {
+          user: userId,
+          mobile: ticketData.mobile,
+          images,
+          issue: ticketData.issue,
+          userType: ticketData.userType,
+        },
+      ],
+      { session }
+    );
+
+    await ChatRoom.create(
+      [
+        {
+          ticketId: addTicket[0]._id,
+          members: [userId],
+        },
+      ],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return addTicket[0];
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(error);
+  }
 };
 
 const getAllTickets = async () => {

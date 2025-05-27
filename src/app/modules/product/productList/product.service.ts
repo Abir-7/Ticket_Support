@@ -26,9 +26,9 @@ const createProduct = async (productData: IProduct, image: string) => {
 };
 
 const getAllProducts = async (
-  page: number = 1,
-  limit: number = 10,
-  searchTerm: string = ""
+  page: number,
+  limit: number,
+  searchTerm: string
 ) => {
   const matchStage: any = {
     isDeleted: false,
@@ -119,13 +119,81 @@ const getProductById = async (productId: string) => {
   const data = await Product.aggregate(aggrigate);
   return data;
 };
+const getProductOfBrand = async (
+  brandId: string,
+  page: number,
+  limit: number,
+  searchTerm: string = ""
+) => {
+  const aggregatePipeline: PipelineStage[] = [
+    {
+      $match: {
+        isDeleted: false,
+        brand: new mongoose.Types.ObjectId(brandId),
+      },
+    },
+    {
+      $lookup: {
+        from: "brands",
+        localField: "brand",
+        foreignField: "_id",
+        as: "brandInfo",
+      },
+    },
+    {
+      $unwind: "$brandInfo",
+    },
+    { $match: { "brandInfo.isDeleted": false } },
+  ];
+
+  if (searchTerm) {
+    aggregatePipeline.push({
+      $match: { model: { $regex: searchTerm, $options: "i" } },
+    });
+  }
+
+  const countPipeline = [...aggregatePipeline, { $count: "total" }];
+
+  const countResult = await Product.aggregate(countPipeline);
+  const totalItem = countResult[0]?.total || 0;
+  const totalPage = Math.ceil(totalItem / limit);
+
+  aggregatePipeline.push(
+    {
+      $project: {
+        model: 1,
+        image: 1,
+        description: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        brand: "$brandInfo._id",
+        brandName: "$brandInfo.name",
+        brandImage: "$brandInfo.image",
+        brandDescription: "$brandInfo.description",
+      },
+    },
+    { $skip: (page - 1) * limit },
+    { $limit: limit }
+  );
+
+  const products = await Product.aggregate(aggregatePipeline);
+
+  return {
+    products,
+    meta: {
+      totalItem,
+      totalPage,
+      limit,
+      page,
+    },
+  };
+};
 
 const updateProduct = async (
   productId: string,
   productData: Partial<IProduct>,
   image: string
 ) => {
-  console.log(image);
   const productInfo = await Product.findById(productId);
 
   if (!productInfo) {
@@ -166,6 +234,7 @@ export const ProductService = {
   createProduct,
   getAllProducts,
   getProductById,
+  getProductOfBrand,
   updateProduct,
   deleteProduct,
 };

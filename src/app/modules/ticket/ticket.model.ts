@@ -1,19 +1,26 @@
-import mongoose, { Schema } from "mongoose";
-import { ITicket } from "./ticket.interface";
+import { model, Schema } from "mongoose";
+import { IssueType, ITicket, UserType } from "./ticket.interface";
 
-const ticketSchema = new Schema<ITicket>(
+const TicketSchema = new Schema<ITicket>(
   {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    status: { type: String, required: true },
-    priority: { type: String, required: true },
-    isDeleted: { type: Boolean, default: false },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    mobile: { type: String, required: true },
+    issue: {
+      type: String,
+      enum: Object.values(IssueType),
+      required: true,
+    },
+    userType: {
+      type: String,
+      enum: Object.values(UserType),
+      required: true,
+    },
+    images: [{ type: String, required: true }],
   },
   {
     timestamps: true,
   }
 );
 
-const Ticket = mongoose.model<ITicket>("Ticket", ticketSchema);
-
+const Ticket = model<ITicket>("Ticket", TicketSchema);
 export default Ticket;

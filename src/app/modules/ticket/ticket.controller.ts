@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
 import catchAsync from "../../utils/serverTool/catchAsync";
 import sendResponse from "../../utils/serverTool/sendResponse";
@@ -5,7 +6,11 @@ import { TicketService } from "./ticket.service";
 
 const createTicket = catchAsync(async (req, res) => {
   const ticketData = req.body;
-  const result = await TicketService.createTicket(ticketData);
+  const result = await TicketService.createTicket(
+    ticketData,
+    req.user.userId,
+    req.files as Express.Multer.File[]
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

@@ -1,5 +1,7 @@
+import { Types } from "mongoose";
+
 export interface IChatRoom {
-  name: string;
-  members: string[]; // user IDs
+  ticketId: Types.ObjectId;
+  members: Types.ObjectId[]; // user IDs
   isDeleted: boolean;
 }

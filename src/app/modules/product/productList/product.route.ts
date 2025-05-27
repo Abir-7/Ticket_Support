@@ -9,6 +9,16 @@ import { productUpdateZodSchema, productZodSchema } from "./product.validation";
 
 const router = Router();
 
+router.get("/", auth("ADMIN", "USER"), ProductController.getAllProducts);
+
+router.get("/:id", auth("ADMIN", "USER"), ProductController.getProductById);
+
+router.get(
+  "/brand/:id",
+  auth("ADMIN", "USER"),
+  ProductController.getProductOfBrand
+);
+
 router.post(
   "/add",
   auth("ADMIN"),
@@ -17,8 +27,7 @@ router.post(
   zodValidator(productZodSchema),
   ProductController.createProduct
 );
-router.get("/", ProductController.getAllProducts);
-router.get("/:id", ProductController.getProductById);
+
 router.put(
   "/:id",
   auth("ADMIN"),

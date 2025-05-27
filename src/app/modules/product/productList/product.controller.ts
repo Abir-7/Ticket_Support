@@ -20,7 +20,7 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const getAllProducts = catchAsync(async (req, res) => {
-  const { page = "1", limit = "10", searchTerm } = req.query;
+  const { page = "1", limit = "10", searchTerm = "" } = req.query;
 
   const result = await ProductService.getAllProducts(
     Number(page),
@@ -43,6 +43,23 @@ const getProductById = catchAsync(async (req, res) => {
     success: true,
     statusCode: status.OK,
     message: "Product fetched successfully.",
+    data: result,
+  });
+});
+
+const getProductOfBrand = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { page = "1", limit = "10", searchTerm } = req.query;
+  const result = await ProductService.getProductOfBrand(
+    id,
+    Number(page),
+    Number(limit),
+    searchTerm as string
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Products of a brand fetched successfully.",
     data: result,
   });
 });
@@ -79,6 +96,7 @@ export const ProductController = {
   createProduct,
   getAllProducts,
   getProductById,
+  getProductOfBrand,
   updateProduct,
   deleteProduct,
 };

@@ -1,15 +1,16 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 import { IChatRoom } from "./chatRoom.interface";
 
-const chatRoomSchema = new Schema<IChatRoom>(
+const ChatRoomSchema = new Schema<IChatRoom>(
   {
-    name: { type: String, required: true },
-    members: [{ type: String, required: true }],
+    ticketId: { type: Schema.Types.ObjectId, ref: "Ticket", required: true },
+    members: [{ type: Schema.Types.ObjectId, required: true, ref: "User" }],
     isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-const ChatRoom = mongoose.model<IChatRoom>("ChatRoom", chatRoomSchema);
-
+const ChatRoom = model<IChatRoom>("ChatRoom", ChatRoomSchema);
 export default ChatRoom;
