@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import status from "http-status";
 import catchAsync from "../../utils/serverTool/catchAsync";
 import sendResponse from "../../utils/serverTool/sendResponse";
@@ -20,7 +21,14 @@ const createTicket = catchAsync(async (req, res) => {
 });
 
 const getMyTickets = catchAsync(async (req, res) => {
-  const result = await TicketService.getMyTickets(req.user.userId);
+  const { isRecent, page = 1, limit = 10 } = req.query;
+
+  const result = await TicketService.getMyTickets(
+    req.user.userId,
+    isRecent as "true" | "false",
+    Number(page),
+    Number(limit)
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -29,31 +37,47 @@ const getMyTickets = catchAsync(async (req, res) => {
   });
 });
 
-const getAllTickets = catchAsync(async (req, res) => {
-  const result = await TicketService.getAllTickets();
+const getAllUSersTicket = catchAsync(async (req, res) => {
+  const {
+    status: ticketStatus,
+    page = 1,
+    limit = 10,
+    searchTerm = "",
+  } = req.query;
+  const result = await TicketService.getAllUSersTicket(
+    Number(page),
+    Number(limit),
+    ticketStatus as string,
+    searchTerm as string
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
     message: "Tickets fetched successfully.",
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 });
 
 const getTicketById = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await TicketService.getTicketById(id);
+  const result = await TicketService.getTicketById(id, req.user);
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
-    message: "Ticket fetched successfully.",
+    message: "Ticket data fetched successfully.",
     data: result,
   });
 });
 
-const updateTicket = catchAsync(async (req, res) => {
+const updateTicketStatus = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const ticketData = req.body;
-  const result = await TicketService.updateTicket(id, ticketData);
+
+  const result = await TicketService.updateTicketStatus(
+    id,
+    req.body.status,
+    req.user.userId
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -61,9 +85,9 @@ const updateTicket = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
 const deleteTicket = catchAsync(async (req, res) => {
   const { id } = req.params;
+
   const result = await TicketService.deleteTicket(id);
   sendResponse(res, {
     success: true,
@@ -75,9 +99,9 @@ const deleteTicket = catchAsync(async (req, res) => {
 
 export const TicketController = {
   createTicket,
-  getAllTickets,
+  getAllUSersTicket,
   getTicketById,
-  updateTicket,
-  deleteTicket,
+  updateTicketStatus,
   getMyTickets,
+  deleteTicket,
 };

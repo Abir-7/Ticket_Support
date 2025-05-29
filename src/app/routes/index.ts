@@ -5,6 +5,7 @@ import { UserProfileRoute } from "../modules/users/userProfile/userProfile.route
 import TicketRoute from "../modules/ticket/ticket.route";
 import { ProductRoute } from "../modules/product/productList/product.route";
 import { BrandRoute } from "../modules/product/brand/brand.route";
+import { ChatRoute } from "../modules/communication/chat/chat.route";
 
 const router = Router();
 const apiRoutes = [
@@ -15,6 +16,7 @@ const apiRoutes = [
   { path: "/product", route: ProductRoute },
   { path: "/brand", route: BrandRoute },
   { path: "/ticket", route: TicketRoute },
+  { path: "/chat", route: ChatRoute },
 ];
 apiRoutes.forEach((route) => router.use(route.path, route.route));
 export default router;

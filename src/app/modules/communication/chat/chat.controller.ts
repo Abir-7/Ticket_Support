@@ -3,9 +3,13 @@ import catchAsync from "../../../utils/serverTool/catchAsync";
 import sendResponse from "../../../utils/serverTool/sendResponse";
 import { ChatService } from "./chat.service";
 
-const createChat = catchAsync(async (req, res) => {
+const sendMessageByTicketId = catchAsync(async (req, res) => {
   const chatData = req.body;
-  const result = await ChatService.createChat(chatData);
+  const result = await ChatService.sendMessageByTicketId(
+    req.params.id,
+    chatData,
+    req.user.userId
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -14,8 +18,14 @@ const createChat = catchAsync(async (req, res) => {
   });
 });
 
-const getAllChats = catchAsync(async (req, res) => {
-  const result = await ChatService.getAllChats();
+const getMessageByTicketId = catchAsync(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  const result = await ChatService.getMessageByTicketId(
+    req.params.id,
+    Number(page),
+    Number(limit)
+  );
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -24,44 +34,7 @@ const getAllChats = catchAsync(async (req, res) => {
   });
 });
 
-const getChatById = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await ChatService.getChatById(id);
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "Chat fetched successfully.",
-    data: result,
-  });
-});
-
-const updateChat = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const chatData = req.body;
-  const result = await ChatService.updateChat(id, chatData);
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "Chat updated successfully.",
-    data: result,
-  });
-});
-
-const deleteChat = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await ChatService.deleteChat(id);
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "Chat deleted successfully.",
-    data: result,
-  });
-});
-
 export const ChatController = {
-  createChat,
-  getAllChats,
-  getChatById,
-  updateChat,
-  deleteChat,
+  sendMessageByTicketId,
+  getMessageByTicketId,
 };

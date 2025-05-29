@@ -2,11 +2,13 @@ import { Types } from "mongoose";
 
 export interface ITicket {
   user: Types.ObjectId;
-  mobile: string;
+  phone: string;
   issue: IssueType;
   userType: UserType;
   images: string[];
+  description: string;
   status: TicketStatus;
+  isDeleted: boolean;
 }
 export enum TicketStatus {
   Pending = "Pending",

@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { ChatController } from "./chat.controller";
+import { auth } from "../../../middleware/auth/auth";
 
 const router = Router();
 
-router.post("/", ChatController.createChat);
-router.get("/", ChatController.getAllChats);
-router.get("/:id", ChatController.getChatById);
-router.put("/:id", ChatController.updateChat);
-router.delete("/:id", ChatController.deleteChat);
+router.post(
+  "/:id",
+  auth("ADMIN", "USER"),
+  ChatController.sendMessageByTicketId
+);
+router.get("/:id", auth("ADMIN", "USER"), ChatController.getMessageByTicketId);
 
-export default router;
+export const ChatRoute = router;

@@ -4,11 +4,15 @@ import { IssueType, ITicket, TicketStatus, UserType } from "./ticket.interface";
 const TicketSchema = new Schema<ITicket>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    mobile: { type: String, required: true },
+    phone: { type: String, required: true },
     issue: {
       type: String,
       enum: Object.values(IssueType),
       required: true,
+    },
+    description: {
+      type: String,
+      enum: Object.values(IssueType),
     },
     userType: {
       type: String,
@@ -20,6 +24,10 @@ const TicketSchema = new Schema<ITicket>(
       type: String,
       enum: Object.values(TicketStatus),
       default: TicketStatus.Pending,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

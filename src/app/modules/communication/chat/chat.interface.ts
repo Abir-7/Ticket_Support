@@ -1,5 +1,8 @@
+import { Types } from "mongoose";
+
 export interface IChat {
-  participants: string[]; // user IDs
-  messages: string[]; // message IDs
+  roomId: Types.ObjectId;
+  sender: Types.ObjectId;
+  messages: string;
   isDeleted: boolean;
 }

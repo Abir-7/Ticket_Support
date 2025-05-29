@@ -1,15 +1,16 @@
 import mongoose, { Schema } from "mongoose";
 import { IChat } from "./chat.interface";
 
-const chatSchema = new Schema<IChat>(
+const ChatSchema = new Schema<IChat>(
   {
-    participants: [{ type: String, required: true }],
-    messages: [{ type: String, required: true }],
+    roomId: { type: Schema.Types.ObjectId, ref: "ChatRoom", required: true },
+    sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    messages: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-const Chat = mongoose.model<IChat>("Chat", chatSchema);
+const Chat = mongoose.model<IChat>("Chat", ChatSchema);
 
 export default Chat;
