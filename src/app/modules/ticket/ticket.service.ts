@@ -10,6 +10,8 @@ import ChatRoom from "../communication/chatRoom/chatRoom.model";
 import { ITicket, TicketStatus } from "./ticket.interface";
 import Ticket from "./ticket.model";
 import mongoose, { PipelineStage } from "mongoose";
+import Notification from "../notifictaion/notification.model";
+import { TDescription } from "../notifictaion/notification.interface";
 
 const createTicket = async (
   ticketData: Partial<ITicket>,
@@ -343,6 +345,19 @@ const updateTicketStatus = async (
       await ChatRoom.findOneAndUpdate(
         { ticketId },
         { $addToSet: { members: userId } },
+        { session }
+      );
+
+      await Notification.create(
+        [
+          {
+            description: TDescription.progress,
+            sender: "ADMIN",
+            ticketId,
+            title: "Ticket Update",
+            user: ticketData.user,
+          },
+        ],
         { session }
       );
     }

@@ -1,3 +1,4 @@
+import { TUserRole } from "./../../../interface/auth.interface";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -8,41 +9,98 @@ import { IChat } from "./chat.interface";
 import mongoose from "mongoose";
 import { TicketStatus } from "../../ticket/ticket.interface";
 import Chat from "./chat.model";
+import Notification from "../../notifictaion/notification.model";
+import { TDescription } from "../../notifictaion/notification.interface";
 
 const sendMessageByTicketId = async (
   ticketId: string,
   chatData: { message: string },
-  userId: string
+  userId: string,
+  userRole: TUserRole
 ) => {
-  const findChatRoom = (await ChatRoom.findOne({ ticketId })) as any;
+  const session = await mongoose.startSession();
 
-  if (!findChatRoom) {
-    throw new AppError(status.NOT_FOUND, "Chat room not found");
-  }
+  try {
+    session.startTransaction();
 
-  if (!findChatRoom.members.includes(new mongoose.Types.ObjectId(userId))) {
-    throw new AppError(status.NOT_FOUND, "User not found in chat room.");
-  }
+    const findChatRoom = (await ChatRoom.findOne({ ticketId }).session(
+      session
+    )) as any;
+    if (!findChatRoom) {
+      throw new AppError(status.NOT_FOUND, "Chat room not found");
+    }
 
-  await findChatRoom.populate("ticketId");
+    if (
+      !findChatRoom.members.some((m: mongoose.Types.ObjectId) =>
+        m.equals(userId)
+      )
+    ) {
+      throw new AppError(status.NOT_FOUND, "User not found in chat room.");
+    }
 
-  if (findChatRoom.ticketId.isDeleted) {
-    throw new AppError(status.NOT_FOUND, "This ticket has been deleted");
-  }
+    await findChatRoom.populate("ticketId");
 
-  if (findChatRoom.ticketId.status === TicketStatus.Solved) {
-    throw new AppError(
-      status.NOT_FOUND,
-      "You can't send any message as ticket is closed."
+    if (findChatRoom.ticketId.isDeleted) {
+      throw new AppError(status.NOT_FOUND, "This ticket has been deleted");
+    }
+
+    if (findChatRoom.ticketId.status === TicketStatus.Solved) {
+      throw new AppError(
+        status.NOT_FOUND,
+        "You can't send any message as ticket is closed."
+      );
+    }
+
+    // Create Notification based on userRole inside transaction
+    if (userRole === "ADMIN") {
+      await Notification.create(
+        [
+          {
+            sender: "ADMIN",
+            description: TDescription.message,
+            ticketId: findChatRoom.ticketId._id,
+            user: findChatRoom.ticketId.user,
+            title: "Ticket Update",
+          },
+        ],
+        { session }
+      );
+    }
+    if (userRole === "USER") {
+      await Notification.create(
+        [
+          {
+            sender: "USER",
+            description: TDescription.message,
+            ticketId: findChatRoom.ticketId._id,
+            title: "Waiting for review.",
+          },
+        ],
+        { session }
+      );
+    }
+
+    // Create chat message in the same transaction
+    const createChat = await Chat.create(
+      [
+        {
+          messages: chatData.message,
+          sender: userId,
+          roomId: findChatRoom._id,
+        },
+      ],
+      { session }
     );
-  }
 
-  const createChat = await Chat.create({
-    messages: chatData.message,
-    sender: userId,
-    roomId: findChatRoom._id,
-  });
-  return createChat;
+    await session.commitTransaction();
+    session.endSession();
+
+    return createChat[0];
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(error);
+  }
 };
 
 const getMessageByTicketId = async (

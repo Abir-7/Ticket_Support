@@ -8,7 +8,8 @@ const sendMessageByTicketId = catchAsync(async (req, res) => {
   const result = await ChatService.sendMessageByTicketId(
     req.params.id,
     chatData,
-    req.user.userId
+    req.user.userId,
+    req.user.userRole
   );
   sendResponse(res, {
     success: true,
