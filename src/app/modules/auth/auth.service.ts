@@ -23,6 +23,8 @@ const createUser = async (data: {
   const session = await mongoose.startSession();
   session.startTransaction();
 
+  console.log(data, "---------------------->");
+
   try {
     const isExist = await User.findOne({ email: data.email }).session(session);
 
