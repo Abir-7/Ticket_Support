@@ -191,7 +191,7 @@ const verifyUser = async (
   }
 
   return {
-    userId: updatedUser?._id as string,
+    userId: updatedUser?._id as string | undefined,
     email: updatedUser?.email,
     isVerified: updatedUser?.isVerified,
     needToResetPass: updatedUser?.needToResetPass,

@@ -1,4 +1,3 @@
-import { Document } from "mongoose";
 import { TUserRole } from "../../../interface/auth.interface";
 
 export interface IBaseUser {
@@ -16,6 +15,6 @@ export interface IBaseUser {
   isBlocked: boolean;
 }
 
-export interface IUser extends IBaseUser, Document {
+export interface IUser extends IBaseUser {
   comparePassword(enteredPassword: string): Promise<boolean>;
 }

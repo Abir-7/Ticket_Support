@@ -12,7 +12,9 @@ const TicketSchema = new Schema<ITicket>(
     },
     description: {
       type: String,
-      enum: Object.values(IssueType),
+    },
+    note: {
+      type: String,
     },
     userType: {
       type: String,

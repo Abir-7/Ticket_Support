@@ -9,7 +9,9 @@ export interface ITicket {
   description: string;
   status: TicketStatus;
   isDeleted: boolean;
+  note: string;
 }
+
 export enum TicketStatus {
   Pending = "Pending",
   InProgress = "InProgress",
@@ -22,6 +24,8 @@ export enum IssueType {
   Software = "Software",
   Battery = "Battery",
   Others = "Others",
+  Connectivity = "Connectivity",
+  PhysicalDamage = "Physical Damage",
 }
 export enum UserType {
   Customer = "Customer",

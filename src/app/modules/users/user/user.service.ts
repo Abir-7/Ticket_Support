@@ -36,7 +36,7 @@ const getMyData = async (userId: string) => {
     {
       $match: {
         isDeleted: false,
-        role: "USER",
+
         _id: new mongoose.Types.ObjectId(userId),
       },
     },
@@ -55,22 +55,34 @@ const getMyData = async (userId: string) => {
         authentication: 0,
         __v: 0,
         needToResetPass: 0,
+        "userProfile.__v": 0,
       },
     },
   ];
 
   const user = await User.aggregate(aggrigateArray);
+
+  if (!user) {
+    throw new AppError(status.NOT_FOUND, "Failed to get user data.");
+  }
+
   return user[0] || {};
 };
+
 const deleteUser = async (userId: string) => {
+  console.log(userId);
+
   const user = await User.findOneAndUpdate(
-    { user: userId },
+    { _id: userId },
     { isDeleted: true },
     { new: true }
   );
 
   if (!user) {
-    throw new AppError(status.BAD_REQUEST, "Failed to delete user");
+    throw new AppError(
+      status.NOT_FOUND,
+      "Failed to delete user. User not found or already deleted."
+    );
   }
 
   return user;

@@ -29,10 +29,10 @@ const createTicket = async (
       [
         {
           user: userId,
-          phone: ticketData.phone,
+
           images,
-          issue: ticketData.issue,
-          userType: ticketData.userType,
+
+          ...ticketData,
         },
       ],
       { session }
@@ -136,6 +136,8 @@ const getAllUSersTicket = async (
   tStatus: string,
   searchTerm: string
 ) => {
+  console.log(page, limit, searchTerm, tStatus, "gg");
+
   const query: Record<string, unknown> = { isDeleted: false };
 
   if (tStatus && tStatus.length > 2) {
