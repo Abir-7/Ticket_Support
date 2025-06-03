@@ -5,7 +5,7 @@ import { TUserRole } from "./../../../interface/auth.interface";
 import status from "http-status";
 import AppError from "../../../errors/AppError";
 import ChatRoom from "../chatRoom/chatRoom.model";
-import { IChat } from "./chat.interface";
+
 import mongoose from "mongoose";
 import { TicketStatus } from "../../ticket/ticket.interface";
 import Chat from "./chat.model";
