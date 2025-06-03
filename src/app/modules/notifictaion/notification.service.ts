@@ -34,8 +34,9 @@ const getFromUser = async (page: number = 1, limit: number = 10) => {
 };
 
 const getFromAdmin = async (userId: string) => {
-  const getNotification = await Notification.findOne({
+  const getNotification = await Notification.find({
     user: userId,
+    sender: userRoles.ADMIN,
     isRead: false,
   });
 
@@ -45,12 +46,12 @@ const getFromAdmin = async (userId: string) => {
 const markAsRead = async (nId: string, userRole: TUserRole) => {
   const query: Record<string, unknown> = { _id: nId };
 
-  if (userRole === "ADMIN") {
-    query.sender = "USER";
+  if (userRole === userRoles.ADMIN) {
+    query.sender = userRoles.USER;
   }
 
-  if (userRole === "USER") {
-    query.sender = "ADMIN";
+  if (userRole === userRoles.USER) {
+    query.sender = userRoles.ADMIN;
   }
 
   const update = await Notification.findOneAndUpdate(

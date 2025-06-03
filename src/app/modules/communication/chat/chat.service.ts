@@ -116,6 +116,7 @@ const getMessageByTicketId = async (
   if (!findChatRoom.ticketId) {
     throw new AppError(status.NOT_FOUND, "Chat room not found");
   }
+
   if (findChatRoom.ticketId.isDeleted) {
     throw new AppError(status.NOT_FOUND, "This ticket has been deleted");
   }
