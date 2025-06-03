@@ -16,4 +16,5 @@ export enum TDescription {
   close = "Your ticket has been closed. Thank you for your patience.",
   message = "You have a new message.",
   request = "has submitted a support ticket regarding a flight control issue.",
+  new = "User Open a new ticket.",
 }

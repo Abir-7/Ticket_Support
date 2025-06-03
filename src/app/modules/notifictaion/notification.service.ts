@@ -1,7 +1,5 @@
-import { PipelineStage } from "mongoose";
-
 import Notification from "./notification.model";
-import { TUserRole } from "../../interface/auth.interface";
+import { TUserRole, userRoles } from "../../interface/auth.interface";
 import AppError from "../../errors/AppError";
 import status from "http-status";
 
@@ -11,7 +9,7 @@ const getFromUser = async (page: number = 1, limit: number = 10) => {
   const currentLimit = Math.max(1, limit);
 
   // Filter condition for unread notifications
-  const filter = { isRead: false };
+  const filter = { isRead: false, sender: userRoles.USER };
 
   // Total unread notifications count
   const totalItem = await Notification.countDocuments(filter);
@@ -35,12 +33,11 @@ const getFromUser = async (page: number = 1, limit: number = 10) => {
   return { getNotification, meta };
 };
 
-const getFromAdmin = async () => {
-  const aggregeteArray: PipelineStage[] = [
-    { $match: { isRead: false, sender: "USER" } },
-  ];
-
-  const getNotification = await Notification.aggregate(aggregeteArray);
+const getFromAdmin = async (userId: string) => {
+  const getNotification = await Notification.findOne({
+    user: userId,
+    isRead: false,
+  });
 
   return getNotification;
 };

@@ -5,11 +5,13 @@ const TicketSchema = new Schema<ITicket>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     phone: { type: String, required: true },
-    issue: {
-      type: String,
-      enum: Object.values(IssueType),
-      required: true,
-    },
+    issue: [
+      {
+        type: String,
+        enum: Object.values(IssueType),
+        required: true,
+      },
+    ],
     description: {
       type: String,
     },
@@ -30,6 +32,10 @@ const TicketSchema = new Schema<ITicket>(
     isDeleted: {
       type: Boolean,
       default: false,
+    },
+    productId: {
+      type: Schema.Types.ObjectId,
+      required: true,
     },
   },
   {

@@ -11,7 +11,7 @@ const NotificationSchema: Schema<INotification> = new Schema(
     description: { type: String, enum: TDescriptionValues, required: true },
     user: {
       type: Schema.Types.ObjectId,
-      default: null,
+      required: true,
     },
     sender: {
       type: String,

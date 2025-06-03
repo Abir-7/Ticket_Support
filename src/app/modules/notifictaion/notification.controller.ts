@@ -19,7 +19,7 @@ const getFromUser = catchAsync(async (req, res) => {
 });
 
 const getFromAdmin = catchAsync(async (req, res) => {
-  const result = await NotificationService.getFromAdmin();
+  const result = await NotificationService.getFromAdmin(req.user.userId);
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

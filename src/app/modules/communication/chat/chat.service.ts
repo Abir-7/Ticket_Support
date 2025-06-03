@@ -57,9 +57,9 @@ const sendMessageByTicketId = async (
         [
           {
             sender: "ADMIN",
+            user: findChatRoom.ticketId.user,
             description: TDescription.message,
             ticketId: findChatRoom.ticketId._id,
-            user: findChatRoom.ticketId.user,
             title: "Ticket Update",
           },
         ],
@@ -72,6 +72,7 @@ const sendMessageByTicketId = async (
           {
             sender: "USER",
             description: TDescription.message,
+            user: findChatRoom.ticketId.user,
             ticketId: findChatRoom.ticketId._id,
             title: "Waiting for review.",
           },
@@ -112,7 +113,7 @@ const getMessageByTicketId = async (
     "ticketId"
   )) as any;
 
-  if (!findChatRoom) {
+  if (!findChatRoom.ticketId) {
     throw new AppError(status.NOT_FOUND, "Chat room not found");
   }
   if (findChatRoom.ticketId.isDeleted) {

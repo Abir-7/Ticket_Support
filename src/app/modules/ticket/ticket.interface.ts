@@ -3,13 +3,14 @@ import { Types } from "mongoose";
 export interface ITicket {
   user: Types.ObjectId;
   phone: string;
-  issue: IssueType;
+  issue: IssueType[];
   userType: UserType;
   images: string[];
   description: string;
   status: TicketStatus;
   isDeleted: boolean;
   note: string;
+  productId: Types.ObjectId;
 }
 
 export enum TicketStatus {

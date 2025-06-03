@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import status from "http-status";
 import AppError from "../../errors/AppError";
-import { IAuthData } from "../../interface/auth.interface";
+import { IAuthData, userRoles } from "../../interface/auth.interface";
 import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
 import unlinkFile from "../../middleware/fileUpload/unlinkFiles";
 import ChatRoom from "../communication/chatRoom/chatRoom.model";
@@ -43,6 +43,19 @@ const createTicket = async (
         {
           ticketId: addTicket[0]._id,
           members: [userId],
+        },
+      ],
+      { session }
+    );
+
+    await Notification.create(
+      [
+        {
+          user: userId,
+          description: TDescription.new,
+          sender: userRoles.USER,
+          ticketId: addTicket[0]._id,
+          title: "Wating for review.",
         },
       ],
       { session }
@@ -296,7 +309,7 @@ const updateTicketStatus = async (
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-
+  console.log(ticketId, tStatus, "------------------>");
   try {
     const ticketData = await Ticket.findById(ticketId).session(session);
 
@@ -319,17 +332,14 @@ const updateTicketStatus = async (
       );
     }
 
-    if (tStatus === TicketStatus.Pending) {
+    if (
+      tStatus === TicketStatus.Pending &&
+      (ticketData.status === TicketStatus.InProgress ||
+        ticketData.status === TicketStatus.Solved)
+    ) {
       throw new AppError(
         status.BAD_REQUEST,
         "Cannot change ticket status to pending."
-      );
-    }
-
-    if (ticketData.status === TicketStatus.InProgress) {
-      throw new AppError(
-        status.BAD_REQUEST,
-        `Status is already ${TicketStatus.InProgress}`
       );
     }
 
@@ -343,26 +353,24 @@ const updateTicketStatus = async (
       );
     }
 
-    if (tStatus === TicketStatus.InProgress) {
-      await ChatRoom.findOneAndUpdate(
-        { ticketId },
-        { $addToSet: { members: userId } },
-        { session }
-      );
+    await ChatRoom.findOneAndUpdate(
+      { ticketId },
+      { $addToSet: { members: userId } },
+      { session }
+    );
 
-      await Notification.create(
-        [
-          {
-            description: TDescription.progress,
-            sender: "ADMIN",
-            ticketId,
-            title: "Ticket Update",
-            user: ticketData.user,
-          },
-        ],
-        { session }
-      );
-    }
+    await Notification.create(
+      [
+        {
+          description: TDescription.progress,
+          sender: "ADMIN",
+          ticketId,
+          title: "Ticket Update",
+          user: ticketData.user,
+        },
+      ],
+      { session }
+    );
 
     ticketData.status = tStatus;
     await ticketData.save({ session });
