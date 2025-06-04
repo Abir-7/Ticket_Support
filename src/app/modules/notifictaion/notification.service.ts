@@ -4,10 +4,7 @@ import AppError from "../../errors/AppError";
 import status from "http-status";
 
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-const getFromUser = async (page: number = 1, limit: number = 10) => {
-  const currentPage = Math.max(1, page);
-  const currentLimit = Math.max(1, limit);
-
+const getFromUser = async (page: number, limit: number) => {
   // Filter condition for unread notifications
   const filter = { isRead: false, sender: userRoles.USER };
 
@@ -15,19 +12,19 @@ const getFromUser = async (page: number = 1, limit: number = 10) => {
   const totalItem = await Notification.countDocuments(filter);
 
   // Calculate total pages for unread notifications
-  const totalPage = Math.ceil(totalItem / currentLimit);
+  const totalPage = Math.ceil(totalItem / limit);
 
   // Fetch paginated unread notifications
   const getNotification = await Notification.find(filter)
     .sort({ createdAt: -1 }) // newest first
-    .skip((currentPage - 1) * currentLimit)
-    .limit(currentLimit);
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   const meta = {
     totalItem,
     totalPage,
-    limit: currentLimit,
-    page: currentPage,
+    limit: limit,
+    page: page,
   };
 
   return { getNotification, meta };

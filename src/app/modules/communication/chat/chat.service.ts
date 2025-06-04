@@ -14,7 +14,7 @@ import { TDescription } from "../../notifictaion/notification.interface";
 
 const sendMessageByTicketId = async (
   ticketId: string,
-  chatData: { message: string },
+  chatData: { messages: string },
   userId: string,
   userRole: TUserRole
 ) => {
@@ -30,18 +30,18 @@ const sendMessageByTicketId = async (
       throw new AppError(status.NOT_FOUND, "Chat room not found");
     }
 
-    if (
-      !findChatRoom.members.some((m: mongoose.Types.ObjectId) =>
-        m.equals(userId)
-      )
-    ) {
-      throw new AppError(status.NOT_FOUND, "User not found in chat room.");
-    }
-
     await findChatRoom.populate("ticketId");
 
     if (findChatRoom.ticketId.isDeleted) {
       throw new AppError(status.NOT_FOUND, "This ticket has been deleted");
+    }
+
+    if (findChatRoom.ticketId.status === TicketStatus.Pending) {
+      throw new AppError(status.BAD_REQUEST, "This ticket status in pending.");
+    }
+
+    if (findChatRoom.ticketId.status === TicketStatus.Rejected) {
+      throw new AppError(status.BAD_REQUEST, "This ticket is rejected.");
     }
 
     if (findChatRoom.ticketId.status === TicketStatus.Solved) {
@@ -49,6 +49,14 @@ const sendMessageByTicketId = async (
         status.NOT_FOUND,
         "You can't send any message as ticket is closed."
       );
+    }
+
+    if (
+      !findChatRoom.members.some((m: mongoose.Types.ObjectId) =>
+        m.equals(userId)
+      )
+    ) {
+      throw new AppError(status.NOT_FOUND, "User not found in chat room.");
     }
 
     // Create Notification based on userRole inside transaction
@@ -85,7 +93,7 @@ const sendMessageByTicketId = async (
     const createChat = await Chat.create(
       [
         {
-          messages: chatData.message,
+          messages: chatData.messages,
           sender: userId,
           roomId: findChatRoom._id,
         },

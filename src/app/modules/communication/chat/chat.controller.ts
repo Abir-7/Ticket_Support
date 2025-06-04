@@ -5,6 +5,7 @@ import { ChatService } from "./chat.service";
 
 const sendMessageByTicketId = catchAsync(async (req, res) => {
   const chatData = req.body;
+  console.log(chatData);
   const result = await ChatService.sendMessageByTicketId(
     req.params.id,
     chatData,

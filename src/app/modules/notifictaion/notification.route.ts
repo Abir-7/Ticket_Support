@@ -7,7 +7,7 @@ const router = Router();
 router.get(
   "/get-notification-from-user",
   auth("ADMIN"),
-  NotificationController.getFromAdmin
+  NotificationController.getFromUser
 );
 
 router.get(
