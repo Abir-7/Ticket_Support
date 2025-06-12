@@ -15,13 +15,24 @@ process.on("unhandledRejection", (err) => {
   process.exit(1);
 });
 
+// Handle shutdown gracefully
+process.on("SIGINT", async () => {
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  process.exit(0);
+});
+
 const main = async () => {
   await mongoose.connect(appConfig.database.dataBase_uri as string);
   logger.info("MongoDB connected");
   await seedAdmin();
+  await initWorkers();
   server.listen(
     Number(appConfig.server.port),
-    appConfig.server.ip as string,
+    // appConfig.server.ip as string,
+
     () => {
       logger.info(
         `Example app listening on port ${appConfig.server.port} & ip:${
