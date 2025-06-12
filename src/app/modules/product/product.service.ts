@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import status from "http-status";
-import AppError from "../../../errors/AppError";
-import unlinkFile from "../../../middleware/fileUpload/unlinkFiles";
-import { removeFalsyFields } from "../../../utils/helper/removeFalsyField";
+import AppError from "../../errors/AppError";
+import unlinkFile from "../../middleware/fileUpload/unlinkFiles";
+import { removeFalsyFields } from "../../utils/helper/removeFalsyField";
 import { IProduct } from "./product.interface";
 import Product from "./product.model";
 import mongoose, { PipelineStage } from "mongoose";
@@ -34,28 +34,13 @@ const getAllProducts = async (
     isDeleted: false,
   };
 
-  const aggregatePipeline: PipelineStage[] = [
-    { $match: matchStage },
-    {
-      $lookup: {
-        from: "brands",
-        localField: "brand",
-        foreignField: "_id",
-        as: "brandInfo",
-      },
-    },
-    { $unwind: "$brandInfo" },
-    { $match: { "brandInfo.isDeleted": false } },
-  ];
+  const aggregatePipeline: PipelineStage[] = [{ $match: matchStage }];
 
   // If searchTerm exists, add a $match stage for brand name or model:
   if (searchTerm) {
     aggregatePipeline.push({
       $match: {
-        $or: [
-          { model: { $regex: searchTerm, $options: "i" } },
-          { "brandInfo.name": { $regex: searchTerm, $options: "i" } },
-        ],
+        $or: [{ model: { $regex: searchTerm, $options: "i" } }],
       },
     });
   }
@@ -76,10 +61,6 @@ const getAllProducts = async (
         description: 1,
         createdAt: 1,
         updatedAt: 1,
-        brand: "$brandInfo._id",
-        brandName: "$brandInfo.name",
-        brandImage: "$brandInfo.image",
-        brandDescription: "$brandInfo.description",
       },
     },
     { $skip: (page - 1) * limit },
@@ -104,89 +85,10 @@ const getProductById = async (productId: string) => {
     {
       $match: { _id: new mongoose.Types.ObjectId(productId), isDeleted: false },
     },
-    {
-      $lookup: {
-        from: "brands",
-        localField: "brand",
-        foreignField: "_id",
-        as: "brandInfo",
-      },
-    },
-    { $unwind: "$brandInfo" },
-    { $match: { "brandInfo.isDeleted": false } },
   ];
 
   const data = await Product.aggregate(aggrigate);
   return data;
-};
-const getProductOfBrand = async (
-  brandId: string,
-  page: number,
-  limit: number,
-  searchTerm: string = ""
-) => {
-  const aggregatePipeline: PipelineStage[] = [
-    {
-      $match: {
-        isDeleted: false,
-        brand: new mongoose.Types.ObjectId(brandId),
-      },
-    },
-    {
-      $lookup: {
-        from: "brands",
-        localField: "brand",
-        foreignField: "_id",
-        as: "brandInfo",
-      },
-    },
-    {
-      $unwind: "$brandInfo",
-    },
-    { $match: { "brandInfo.isDeleted": false } },
-  ];
-
-  if (searchTerm) {
-    aggregatePipeline.push({
-      $match: { model: { $regex: searchTerm, $options: "i" } },
-    });
-  }
-
-  const countPipeline = [...aggregatePipeline, { $count: "total" }];
-
-  const countResult = await Product.aggregate(countPipeline);
-  const totalItem = countResult[0]?.total || 0;
-  const totalPage = Math.ceil(totalItem / limit);
-
-  aggregatePipeline.push(
-    {
-      $project: {
-        model: 1,
-        image: 1,
-        description: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        brand: "$brandInfo._id",
-        brandName: "$brandInfo.name",
-        brandImage: "$brandInfo.image",
-        brandDescription: "$brandInfo.description",
-      },
-    },
-    { $skip: (page - 1) * limit },
-    { $limit: limit }
-  );
-
-  const products = await Product.aggregate(aggregatePipeline);
-
-  return {
-    products,
-    meta: {
-      totalItem,
-      totalPage,
-      limit,
-      page,
-    },
-  };
 };
 
 const updateProduct = async (
@@ -227,6 +129,11 @@ const deleteProduct = async (productId: string) => {
     },
     { new: true }
   );
+
+  if (!deletedProduct) {
+    throw new AppError(status.BAD_REQUEST, "Product failed to delete.");
+  }
+
   return deletedProduct;
 };
 
@@ -234,7 +141,6 @@ export const ProductService = {
   createProduct,
   getAllProducts,
   getProductById,
-  getProductOfBrand,
   updateProduct,
   deleteProduct,
 };

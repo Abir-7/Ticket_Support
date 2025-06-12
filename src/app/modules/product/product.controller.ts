@@ -1,8 +1,8 @@
 import status from "http-status";
-import catchAsync from "../../../utils/serverTool/catchAsync";
-import sendResponse from "../../../utils/serverTool/sendResponse";
+import catchAsync from "../../utils/serverTool/catchAsync";
+import sendResponse from "../../utils/serverTool/sendResponse";
 import { ProductService } from "./product.service";
-import { getRelativePath } from "../../../middleware/fileUpload/getRelativeFilePath";
+import { getRelativePath } from "../../middleware/fileUpload/getRelativeFilePath";
 
 const createProduct = catchAsync(async (req, res) => {
   const productData = req.body;
@@ -47,23 +47,6 @@ const getProductById = catchAsync(async (req, res) => {
   });
 });
 
-const getProductOfBrand = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const { page = "1", limit = "10", searchTerm } = req.query;
-  const result = await ProductService.getProductOfBrand(
-    id,
-    Number(page),
-    Number(limit),
-    searchTerm as string
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "Products of a brand fetched successfully.",
-    data: result,
-  });
-});
-
 const updateProduct = catchAsync(async (req, res) => {
   console.log(req.file?.path);
   const { id } = req.params;
@@ -96,7 +79,7 @@ export const ProductController = {
   createProduct,
   getAllProducts,
   getProductById,
-  getProductOfBrand,
+
   updateProduct,
   deleteProduct,
 };

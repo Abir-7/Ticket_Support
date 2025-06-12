@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { ProductController } from "./product.controller";
-import { auth } from "../../../middleware/auth/auth";
+import { auth } from "../../middleware/auth/auth";
 
-import { parseDataField } from "../../../middleware/fileUpload/parseDataField";
-import { upload } from "../../../middleware/fileUpload/fileUploadHandler";
-import zodValidator from "../../../middleware/zodValidator";
+import { parseDataField } from "../../middleware/fileUpload/parseDataField";
+import { upload } from "../../middleware/fileUpload/fileUploadHandler";
+import zodValidator from "../../middleware/zodValidator";
 import { productUpdateZodSchema, productZodSchema } from "./product.validation";
 
 const router = Router();
@@ -12,12 +12,6 @@ const router = Router();
 router.get("/", auth("ADMIN", "USER"), ProductController.getAllProducts);
 
 router.get("/:id", auth("ADMIN", "USER"), ProductController.getProductById);
-
-router.get(
-  "/brand/:id",
-  auth("ADMIN", "USER"),
-  ProductController.getProductOfBrand
-);
 
 router.post(
   "/add",

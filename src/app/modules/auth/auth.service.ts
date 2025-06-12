@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import status from "http-status";
 import AppError from "../../errors/AppError";
@@ -11,19 +12,21 @@ import getOtp from "../../utils/helper/getOtp";
 import { sendEmail } from "../../utils/sendEmail";
 import getHashedPassword from "../../utils/helper/getHashedPassword";
 import { appConfig } from "../../config";
-import { IUser } from "../users/user/user.interface";
+
 import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
+import Distributor from "../users/distributor/distributor.model";
 
-const createUser = async (data: {
-  email: string;
-  fullName: string;
-  password: string;
-}): Promise<Partial<IUser>> => {
+const createUser = async (
+  data: {
+    email: string;
+    fullName: string;
+    password: string;
+  },
+  isDistributor?: boolean
+) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-
-  console.log(data, "---------------------->");
 
   try {
     const isExist = await User.findOne({ email: data.email }).session(session);
@@ -60,6 +63,10 @@ const createUser = async (data: {
     };
     await UserProfile.create([userProfileData], { session });
 
+    if (isDistributor === true) {
+      await Distributor.create([{ user: createdUser[0]._id }], { session });
+    }
+
     await sendEmail(
       data.email,
       "Email Verification Code",
@@ -72,6 +79,7 @@ const createUser = async (data: {
     return {
       email: createdUser[0].email,
       isVerified: createdUser[0].isVerified,
+      _id: createdUser[0]._id,
     };
   } catch (error) {
     await session.abortTransaction();

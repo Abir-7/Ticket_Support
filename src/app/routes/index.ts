@@ -3,10 +3,11 @@ import { UserRoute } from "../modules/users/user/user.route";
 import { AuthRoute } from "../modules/auth/auth.route";
 import { UserProfileRoute } from "../modules/users/userProfile/userProfile.route";
 import TicketRoute from "../modules/ticket/ticket.route";
-import { ProductRoute } from "../modules/product/productList/product.route";
-import { BrandRoute } from "../modules/product/brand/brand.route";
+import { ProductRoute } from "../modules/product/product.route";
+
 import { ChatRoute } from "../modules/communication/chat/chat.route";
 import { NotificationRouter } from "../modules/notifictaion/notification.route";
+import { DistributorRoute } from "../modules/users/distributor/distributor.route";
 
 const router = Router();
 const apiRoutes = [
@@ -15,7 +16,7 @@ const apiRoutes = [
   { path: "/auth", route: AuthRoute },
   { path: "/ticket", route: TicketRoute },
   { path: "/product", route: ProductRoute },
-  { path: "/brand", route: BrandRoute },
+  { path: "/distributor", route: DistributorRoute },
   { path: "/ticket", route: TicketRoute },
   { path: "/chat", route: ChatRoute },
   { path: "/notification", route: NotificationRouter },
