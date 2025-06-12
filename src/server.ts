@@ -28,7 +28,7 @@ const main = async () => {
   await mongoose.connect(appConfig.database.dataBase_uri as string);
   logger.info("MongoDB connected");
   await seedAdmin();
-  await initWorkers();
+
   server.listen(
     Number(appConfig.server.port),
     // appConfig.server.ip as string,
