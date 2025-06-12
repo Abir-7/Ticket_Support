@@ -16,6 +16,7 @@ import { appConfig } from "../../config";
 import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import Distributor from "../users/distributor/distributor.model";
+import { emailQueue } from "../../bullMQ/queue/email.queue";
 
 const createUser = async (
   data: {
@@ -67,11 +68,17 @@ const createUser = async (
       await Distributor.create([{ user: createdUser[0]._id }], { session });
     }
 
-    await sendEmail(
-      data.email,
-      "Email Verification Code",
-      `Your code is: ${otp}`
-    );
+    // await sendEmail(
+    //   data.email,
+    //   "Email Verification Code",
+    //   `Your code is: ${otp}`
+    // );
+
+    await emailQueue.add("send-verification-email", {
+      email: data.email,
+      subject: "Email Verification Code",
+      text: `Your code is: ${otp}`,
+    });
 
     await session.commitTransaction();
     session.endSession();
