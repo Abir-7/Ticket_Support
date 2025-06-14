@@ -3,13 +3,13 @@ version: '3.8'
 services:
   redis:
     image: redis
-    container_name: redis-queue
+    container_name: ticket-support-redis-queue
     ports:
       - "6379:6379"
 
   express:
     build: .
-    container_name: express-app
+    container_name: ticket-support-express-app
     ports:
       - "5001:5001"
     env_file:
