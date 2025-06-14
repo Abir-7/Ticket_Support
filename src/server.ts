@@ -32,13 +32,18 @@ const main = async () => {
   logger.info("MongoDB connected");
   await seedAdmin();
   await initWorkers();
-  server.listen(Number(appConfig.server.port), "0.0.0.0", () => {
-    logger.info(
-      `Example app listening on port ${appConfig.server.port} & ip:${
-        appConfig.server.ip as string
-      }`
-    );
-  });
+  server.listen(
+    Number(appConfig.server.port),
+    appConfig.server.ip as string,
+
+    () => {
+      logger.info(
+        `Example app listening on port ${appConfig.server.port} & ip:${
+          appConfig.server.ip as string
+        }`
+      );
+    }
+  );
 };
 main().catch((err) => logger.error("Error connecting to MongoDB:", err));
 

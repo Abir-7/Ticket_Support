@@ -25,7 +25,8 @@ const getAllDistributor = catchAsync(async (req, res) => {
     success: true,
     statusCode: status.OK,
     message: "Distributor list fetched successfully",
-    data: result,
+    data: result.allDistributor,
+    meta: result.meta,
   });
 });
 
@@ -35,7 +36,7 @@ const getDistributorDetails = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
-    message: "Distributor details fetched successfully",
+    message: "Distributor details fetched successfully.",
     data: result,
   });
 });

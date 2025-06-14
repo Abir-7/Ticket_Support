@@ -1,14 +1,23 @@
 # Dockerfile
+
 FROM node:18
 
+# Set working directory
 WORKDIR /app
 
+# Copy and install dependencies
 COPY package*.json ./
 RUN npm install
 
+# Copy the rest of the project files
 COPY . .
 
-# Build (optional if using TypeScript)
-# RUN npm run build
+# Build TypeScript files
+RUN npm run build
 
-CMD ["npm", "run", "start"]
+# Expose the port your app listens on
+EXPOSE 3000
+
+# Start the app using the compiled JavaScript
+# CMD ["node", "dist/server.js"]  
+CMD ["npm", "run","dev"]  

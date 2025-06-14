@@ -3,9 +3,13 @@ import { auth } from "../../../middleware/auth/auth";
 import { distributorController } from "./distributor.controller";
 
 const router = Router();
+
 router.post(
   "/add-distributor",
   auth("ADMIN"),
   distributorController.addDistributor
 );
+router.get("/", auth("ADMIN"), distributorController.getAllDistributor);
+router.get("/:id", auth("ADMIN"), distributorController.getDistributorDetails);
+
 export const DistributorRoute = router;

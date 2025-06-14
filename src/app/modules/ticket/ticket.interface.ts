@@ -5,12 +5,15 @@ export interface ITicket {
   phone: string;
   issue: IssueType[];
   userType: UserType;
+  distributor?: Types.ObjectId;
   images: string[];
   description: string;
   status: TicketStatus;
+  rejectedReason?: string;
   isDeleted: boolean;
   note: string;
   productId: Types.ObjectId;
+  productSerialNumber: string;
 }
 
 export enum TicketStatus {
@@ -29,6 +32,6 @@ export enum IssueType {
   PhysicalDamage = "Physical Damage",
 }
 export enum UserType {
-  Customer = "Customer",
+  Applicator = "Applicator",
   Distributor = "Distributor",
 }

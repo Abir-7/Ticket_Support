@@ -24,7 +24,11 @@ const createUser = async (
     fullName: string;
     password: string;
   },
-  isDistributor?: boolean
+  distributorData?: {
+    isDistributor: boolean;
+    shopName: string;
+    shopAddress: string;
+  }
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -37,6 +41,16 @@ const createUser = async (
     }
 
     if (isExist && isExist.isVerified === false) {
+      const isDistributorExist = await Distributor.findOne({
+        user: isExist._id,
+      });
+
+      if (isDistributorExist) {
+        throw new AppError(
+          status.BAD_REQUEST,
+          "An account is already opened for you."
+        );
+      }
       await User.findOneAndDelete({ _id: isExist._id }).session(session);
       await UserProfile.findOneAndDelete({ user: isExist._id }).session(
         session
@@ -62,10 +76,20 @@ const createUser = async (
       email: createdUser[0].email,
       user: createdUser[0]._id,
     };
+
     await UserProfile.create([userProfileData], { session });
 
-    if (isDistributor === true) {
-      await Distributor.create([{ user: createdUser[0]._id }], { session });
+    if (distributorData && distributorData.isDistributor === true) {
+      await Distributor.create(
+        [
+          {
+            user: createdUser[0]._id,
+            shopAddress: distributorData.shopAddress,
+            shopName: distributorData.shopName,
+          },
+        ],
+        { session }
+      );
     }
 
     // await sendEmail(

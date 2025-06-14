@@ -3,6 +3,14 @@ import { IDistributor } from "./distributor.interface";
 
 const distributorSchema = new Schema<IDistributor>(
   {
+    shopAddress: {
+      type: String,
+      required: true,
+    },
+    shopName: {
+      type: String,
+      required: true,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

@@ -11,6 +11,7 @@ import { TicketStatus } from "../../ticket/ticket.interface";
 import Chat from "./chat.model";
 import Notification from "../../notifictaion/notification.model";
 import { TDescription } from "../../notifictaion/notification.interface";
+import logger from "../../../utils/serverTool/logger";
 
 const sendMessageByTicketId = async (
   ticketId: string,
@@ -106,6 +107,8 @@ const sendMessageByTicketId = async (
 
     return createChat[0];
   } catch (error: any) {
+    logger.error(error);
+
     await session.abortTransaction();
     session.endSession();
     throw new Error(error);

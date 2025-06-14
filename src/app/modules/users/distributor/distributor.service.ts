@@ -10,9 +10,14 @@ const addDistributor = async (data: {
   email: string;
   fullName: string;
   password: string;
+  shopName: string;
+  shopAddress: string;
 }) => {
   const isDistributor = true;
-  return await AuthService.createUser(data, isDistributor);
+  return await AuthService.createUser(
+    { email: data.email, fullName: data.fullName, password: data.password },
+    { isDistributor, shopName: data.shopName, shopAddress: data.shopAddress }
+  );
 };
 
 const getAllDistributor = async (page: number, limit: number) => {

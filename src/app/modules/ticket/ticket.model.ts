@@ -23,6 +23,21 @@ const TicketSchema = new Schema<ITicket>(
       enum: Object.values(UserType),
       required: true,
     },
+    rejectedReason: {
+      type: String,
+      required: function () {
+        return this.status === TicketStatus.Rejected;
+      },
+    },
+
+    distributor: {
+      type: Schema.Types.ObjectId,
+      ref: "Distributor",
+      required: function () {
+        return this.userType === UserType.Applicator;
+      },
+    },
+
     images: [{ type: String, required: true }],
     status: {
       type: String,
@@ -35,6 +50,10 @@ const TicketSchema = new Schema<ITicket>(
     },
     productId: {
       type: Schema.Types.ObjectId,
+      required: true,
+    },
+    productSerialNumber: {
+      type: String,
       required: true,
     },
   },
