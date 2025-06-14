@@ -41,8 +41,20 @@ const getDistributorDetails = catchAsync(async (req, res) => {
   });
 });
 
+const deleteDistributor = catchAsync(async (req, res) => {
+  const result = await DistributorService.removeDistributor(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Distributor deleted successfully.",
+    data: result,
+  });
+});
+
 export const distributorController = {
   addDistributor,
   getAllDistributor,
   getDistributorDetails,
+  deleteDistributor,
 };

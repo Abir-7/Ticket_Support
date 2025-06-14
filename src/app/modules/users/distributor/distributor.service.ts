@@ -5,6 +5,7 @@ import { AuthService } from "../../auth/auth.service";
 import Distributor from "./distributor.model";
 import AppError from "../../../errors/AppError";
 import status from "http-status";
+import { UserService } from "../user/user.service";
 
 const addDistributor = async (data: {
   email: string;
@@ -71,7 +72,7 @@ const getAllDistributor = async (page: number, limit: number) => {
 
 const getDistributorDetails = async (id: string) => {
   const aggregateArray: PipelineStage[] = [
-    { $match: { user: new mongoose.Types.ObjectId(id) } },
+    { $match: { _id: new mongoose.Types.ObjectId(id) } },
     {
       $lookup: {
         from: "users",
@@ -103,8 +104,17 @@ const getDistributorDetails = async (id: string) => {
   return allDistributor[0];
 };
 
+const removeDistributor = async (dId: string) => {
+  const dData = await Distributor.findById(dId);
+  if (!dData) {
+    throw new AppError(status.NOT_FOUND, "Distributor data not found.");
+  }
+  return await UserService.deleteUser(dData._id.toString());
+};
+
 export const DistributorService = {
   addDistributor,
   getAllDistributor,
   getDistributorDetails,
+  removeDistributor,
 };

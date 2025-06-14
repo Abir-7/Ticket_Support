@@ -16,6 +16,8 @@ export const ticketZodSchema = z.object({
       }),
       description: z.string().optional(),
       note: z.string().optional(),
+      distributor: z.string().optional(),
+      productSerialNumber: z.string(),
     })
     .strict(),
 });

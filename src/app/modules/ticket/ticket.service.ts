@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -12,6 +13,8 @@ import Ticket from "./ticket.model";
 import mongoose, { PipelineStage } from "mongoose";
 import Notification from "../notifictaion/notification.model";
 import { TDescription } from "../notifictaion/notification.interface";
+import { emailQueue } from "../../bullMQ/queue/email.queue";
+import { appConfig } from "../../config";
 
 const createTicket = async (
   ticketData: Partial<ITicket>,
@@ -60,6 +63,12 @@ const createTicket = async (
       ],
       { session }
     );
+
+    await emailQueue.add("send-ticket-email", {
+      email: appConfig.admin.email,
+      subject: "Ticket",
+      text: `A User open new ticket`, //!  page url will add here
+    });
 
     await session.commitTransaction();
     session.endSession();

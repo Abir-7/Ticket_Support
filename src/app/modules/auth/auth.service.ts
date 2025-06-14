@@ -79,8 +79,10 @@ const createUser = async (
 
     await UserProfile.create([userProfileData], { session });
 
+    let createdDistributor;
+
     if (distributorData && distributorData.isDistributor === true) {
-      await Distributor.create(
+      createdDistributor = await Distributor.create(
         [
           {
             user: createdUser[0]._id,
@@ -110,7 +112,8 @@ const createUser = async (
     return {
       email: createdUser[0].email,
       isVerified: createdUser[0].isVerified,
-      _id: createdUser[0]._id,
+      userId: createdUser[0]._id,
+      distributorId: createdDistributor?.[0]?._id,
     };
   } catch (error) {
     await session.abortTransaction();
