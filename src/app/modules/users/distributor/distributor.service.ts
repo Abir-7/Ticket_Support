@@ -6,6 +6,7 @@ import Distributor from "./distributor.model";
 import AppError from "../../../errors/AppError";
 import status from "http-status";
 import { UserService } from "../user/user.service";
+import { TUserRole } from "../../../interface/auth.interface";
 
 const addDistributor = async (data: {
   email: string;
@@ -21,10 +22,15 @@ const addDistributor = async (data: {
   );
 };
 
-const getAllDistributor = async (page: number, limit: number) => {
+const getAllDistributor = async (
+  page: number,
+  limit: number,
+  userRole: TUserRole
+) => {
+  const isAdmin = userRole === "ADMIN";
   const skip = (page - 1) * limit;
 
-  const aggregateArray: PipelineStage[] = [
+  const basePipeline: PipelineStage[] = [
     {
       $lookup: {
         from: "users",
@@ -47,24 +53,28 @@ const getAllDistributor = async (page: number, limit: number) => {
     { $match: { "user.isDeleted": false } },
   ];
 
-  const [allDistributor, countArr] = await Promise.all([
-    await Distributor.aggregate([
-      ...aggregateArray,
-      { $skip: skip },
-      { $limit: limit },
-    ]),
+  // Decide aggregation steps based on role
+  const paginatedPipeline = isAdmin
+    ? [...basePipeline, { $skip: skip }, { $limit: limit }]
+    : [...basePipeline];
 
-    await Distributor.aggregate([...aggregateArray, { $count: "total" }]),
+  const countPromise = isAdmin
+    ? Distributor.aggregate([...basePipeline, { $count: "total" }])
+    : Promise.resolve([{ total: 0 }]);
+
+  const [allDistributor, countArr] = await Promise.all([
+    Distributor.aggregate(paginatedPipeline),
+    countPromise,
   ]);
 
-  const totalItem = countArr[0]?.total || 0;
-  const totalPage = Math.ceil(totalItem / limit);
+  const totalItem = isAdmin ? countArr[0]?.total || 0 : allDistributor.length;
+  const totalPage = isAdmin ? Math.ceil(totalItem / limit) : 1;
 
   const meta = {
     totalItem,
     totalPage,
-    limit,
-    page,
+    limit: isAdmin ? limit : totalItem,
+    page: isAdmin ? page : 1,
   };
 
   return { allDistributor, meta };
@@ -109,7 +119,7 @@ const removeDistributor = async (dId: string) => {
   if (!dData) {
     throw new AppError(status.NOT_FOUND, "Distributor data not found.");
   }
-  return await UserService.deleteUser(dData._id.toString());
+  return await UserService.deleteUser(dData.user.toString());
 };
 
 export const DistributorService = {

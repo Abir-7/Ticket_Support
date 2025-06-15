@@ -146,6 +146,22 @@ const getMyData = async (userId: string) => {
       },
     },
     { $unwind: "$userProfile" },
+
+    {
+      $lookup: {
+        from: "distributors",
+        localField: "_id",
+        foreignField: "user",
+        as: "shopInfo",
+      },
+    },
+    {
+      $unwind: {
+        path: "$shopInfo",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
     {
       $project: {
         password: 0,

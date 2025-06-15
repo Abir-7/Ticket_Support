@@ -9,7 +9,7 @@ router.post(
   auth("ADMIN"),
   distributorController.addDistributor
 );
-router.get("/", auth("ADMIN"), distributorController.getAllDistributor);
+router.get("/", auth("ADMIN", "USER"), distributorController.getAllDistributor);
 router.get("/:id", auth("ADMIN"), distributorController.getDistributorDetails);
 router.delete("/:id", auth("ADMIN"), distributorController.deleteDistributor);
 

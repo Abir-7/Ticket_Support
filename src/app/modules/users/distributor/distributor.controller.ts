@@ -18,7 +18,8 @@ const getAllDistributor = catchAsync(async (req, res) => {
   const { page = 1, limit = 15 } = req.query;
   const result = await DistributorService.getAllDistributor(
     Number(page),
-    Number(limit)
+    Number(limit),
+    req.user.userRole
   );
 
   sendResponse(res, {

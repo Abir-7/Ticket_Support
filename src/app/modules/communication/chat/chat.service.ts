@@ -69,7 +69,7 @@ const sendMessageByTicketId = async (
             user: findChatRoom.ticketId.user,
             description: TDescription.message,
             ticketId: findChatRoom.ticketId._id,
-            title: "Ticket Update",
+            title: "Ticket Update: Message",
           },
         ],
         { session }
@@ -83,7 +83,7 @@ const sendMessageByTicketId = async (
             description: TDescription.message,
             user: findChatRoom.ticketId.user,
             ticketId: findChatRoom.ticketId._id,
-            title: "Waiting for review.",
+            title: "Waiting for reply.",
           },
         ],
         { session }

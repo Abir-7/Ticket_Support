@@ -31,7 +31,7 @@ app.use(limiter);
 app.use("/api", router);
 
 app.get("/", (req, res) => {
-  res.send("Hello World! This app name is Ai_Finance_Hub");
+  res.send("Hello World! This app name is Customer ticket support.");
 });
 
 app.use(express.static(path.join(process.cwd(), "uploads")));

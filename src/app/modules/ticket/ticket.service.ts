@@ -58,7 +58,7 @@ const createTicket = async (
           description: TDescription.new,
           sender: userRoles.USER,
           ticketId: addTicket[0]._id,
-          title: "Wating for review.",
+          title: "Waiting for review.",
         },
       ],
       { session }
@@ -92,20 +92,23 @@ const getMyTickets = async (
   page: number,
   limit: number
 ) => {
-  if (isRecent === "false") {
-    const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
+  if (isRecent === "false") {
     const data = await Ticket.find({ user: userId, isDeleted: false })
+      .populate("productId")
       .sort({ updatedAt: -1 }) // Optional: newest first
       .skip(skip)
       .limit(limit)
       .lean();
 
+    console.log(data);
+
     return data;
   } else if (isRecent === "true") {
     const now = new Date();
     const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(now.getDate() - 10);
+    fiveDaysAgo.setDate(now.getDate() - 5);
 
     // Prepare conditions for each ticket status
     const conditions = [
@@ -134,11 +137,14 @@ const getMyTickets = async (
       isDeleted: false,
       $or: conditions,
     })
-      .lean()
+      .populate("productId")
+      .skip(skip)
+      .limit(limit)
       .sort({
         // Custom priority sort
         updatedAt: -1,
-      });
+      })
+      .lean();
 
     // Sort by our custom status priority
     tickets.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
@@ -186,6 +192,15 @@ const getAllUSersTicket = async (
       },
     },
     { $unwind: "$userProfile.user" },
+    {
+      $lookup: {
+        from: "products",
+        foreignField: "_id",
+        localField: "productId",
+        as: "productId",
+      },
+    },
+    { $unwind: "$productId" },
     ...(searchTerm && searchTerm.trim() !== ""
       ? [
           {
@@ -284,6 +299,15 @@ const getTicketById = async (ticketId: string, user: IAuthData) => {
     },
     { $unwind: "$userProfile.user" },
     {
+      $lookup: {
+        from: "products",
+        foreignField: "_id",
+        localField: "productId",
+        as: "productId",
+      },
+    },
+    { $unwind: "$productId" },
+    {
       $project: {
         user: 0,
         "userProfile.user.authentication": 0,
@@ -332,6 +356,13 @@ const updateTicketStatus = async (
 
     if (!tStatus) {
       throw new AppError(status.BAD_REQUEST, "Status data not found.");
+    }
+
+    if (ticketData.status === tStatus) {
+      throw new AppError(
+        status.BAD_REQUEST,
+        `Ticket status already in ${ticketData.status}`
+      );
     }
 
     if (ticketData.status === TicketStatus.Rejected) {
