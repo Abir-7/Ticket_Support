@@ -76,6 +76,7 @@ const updateTicketStatus = catchAsync(async (req, res) => {
   const result = await TicketService.updateTicketStatus(
     id,
     req.body.status,
+    req.body.rejectedReason,
     req.user.userId
   );
   sendResponse(res, {

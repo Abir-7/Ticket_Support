@@ -46,14 +46,32 @@ const getAllDistributor = async (
               as: "userProfile",
             },
           },
+          { $unwind: "$userProfile" },
         ],
       },
     },
     { $unwind: "$user" },
     { $match: { "user.isDeleted": false } },
+
+    {
+      $project: {
+        shopName: 1,
+        shopAddress: 1,
+        user: {
+          _id: "$user._id",
+          email: "$user.email",
+          userProfile: {
+            fullName: "$user.userProfile.fullName",
+            phone: "$user.userProfile.phone",
+            address: "$user.userProfile.address",
+            image: "$user.userProfile.image",
+          },
+        },
+        _id: 1,
+      },
+    },
   ];
 
-  // Decide aggregation steps based on role
   const paginatedPipeline = isAdmin
     ? [...basePipeline, { $skip: skip }, { $limit: limit }]
     : [...basePipeline];

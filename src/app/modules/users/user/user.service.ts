@@ -7,13 +7,16 @@ import AppError from "../../../errors/AppError";
 
 import User from "./user.model";
 const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
+  const skip = (page - 1) * limit;
+
   const matchConditions: any = {
     isDeleted: false,
     isBlocked: false,
+    role: { $ne: "ADMIN" },
   };
 
+  // Search logic (case-insensitive)
   if (searchTerm) {
-    // You can adjust fields for search — e.g. email, fullName, nickname, etc.
     matchConditions.$or = [
       { email: { $regex: searchTerm, $options: "i" } },
       { "profileInfo.fullName": { $regex: searchTerm, $options: "i" } },
@@ -21,12 +24,8 @@ const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
     ];
   }
 
-  // Calculate how many docs to skip
-  const skip = (page - 1) * limit;
-
-  // Count total matching users (with same matchConditions)
-  const totalItemArr = await User.aggregate([
-    { $match: { isDeleted: false, isBlocked: false } },
+  // Shared pipeline stages
+  const basePipeline: PipelineStage[] = [
     {
       $lookup: {
         from: "userprofiles",
@@ -36,32 +35,6 @@ const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
       },
     },
     { $unwind: { path: "$profileInfo", preserveNullAndEmptyArrays: true } },
-    // Apply search term here for accurate count
-    ...(searchTerm
-      ? [
-          {
-            $match: {
-              $or: [
-                { email: { $regex: searchTerm, $options: "i" } },
-                {
-                  "profileInfo.fullName": { $regex: searchTerm, $options: "i" },
-                },
-                {
-                  "profileInfo.nickname": { $regex: searchTerm, $options: "i" },
-                },
-              ],
-            },
-          },
-        ]
-      : []),
-    { $count: "totalCount" },
-  ]);
-  const totalItem = totalItemArr[0]?.totalCount || 0;
-  const totalPage = Math.ceil(totalItem / limit);
-
-  // Now fetch paginated results
-  const usersWithDetails = await User.aggregate([
-    { $match: { isDeleted: false, isBlocked: false } },
     {
       $lookup: {
         from: "distributors",
@@ -70,32 +43,6 @@ const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
         as: "distributorInfo",
       },
     },
-    {
-      $lookup: {
-        from: "userprofiles",
-        localField: "_id",
-        foreignField: "user",
-        as: "profileInfo",
-      },
-    },
-    { $unwind: { path: "$profileInfo", preserveNullAndEmptyArrays: true } },
-    ...(searchTerm
-      ? [
-          {
-            $match: {
-              $or: [
-                { email: { $regex: searchTerm, $options: "i" } },
-                {
-                  "profileInfo.fullName": { $regex: searchTerm, $options: "i" },
-                },
-                {
-                  "profileInfo.nickname": { $regex: searchTerm, $options: "i" },
-                },
-              ],
-            },
-          },
-        ]
-      : []),
     {
       $addFields: {
         userType: {
@@ -108,6 +55,22 @@ const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
       },
     },
     {
+      $match: matchConditions,
+    },
+  ];
+
+  // Count
+  const totalItemArr = await User.aggregate([
+    ...basePipeline,
+    { $count: "totalCount" },
+  ]);
+  const totalItem = totalItemArr[0]?.totalCount || 0;
+  const totalPage = Math.ceil(totalItem / limit);
+
+  // Final paginated query
+  const usersWithDetails = await User.aggregate([
+    ...basePipeline,
+    {
       $project: {
         distributorInfo: 0,
         password: 0,
@@ -118,14 +81,15 @@ const getAllUser = async (page: number, limit: number, searchTerm?: string) => {
     { $limit: limit },
   ]);
 
-  const meta = {
-    totalItem,
-    totalPage,
-    limit,
-    page,
+  return {
+    meta: {
+      totalItem,
+      totalPage,
+      limit,
+      page,
+    },
+    data: usersWithDetails,
   };
-
-  return { meta, data: usersWithDetails };
 };
 
 const getMyData = async (userId: string) => {

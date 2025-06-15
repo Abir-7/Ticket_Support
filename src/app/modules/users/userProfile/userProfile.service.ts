@@ -41,7 +41,7 @@ const updateProfileImage = async (path: string, email: string) => {
   return await userProfile.save();
 };
 
-const updateProfileData = async (
+const updateProfile = async (
   userdata: Partial<IUserProfile>,
   email: string
 ): Promise<IUserProfile | null> => {
@@ -62,4 +62,45 @@ const updateProfileData = async (
   return updated;
 };
 
-export const UserProfileService = { updateProfileData, updateProfileImage };
+const updateProfileData = async (
+  userdata: Partial<IUserProfile>,
+  email: string
+): Promise<IUserProfile | null> => {
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    throw new AppError(status.NOT_FOUND, "User not found.");
+  }
+  const userProfile = await UserProfile.findOne({ user: user._id });
+
+  if (!userProfile) {
+    throw new AppError(status.NOT_FOUND, "User profile not found.");
+  }
+  const oldImage = userProfile.image;
+
+  const data = removeFalsyFields(userdata);
+
+  const updated = await UserProfile.findOneAndUpdate({ user: user._id }, data, {
+    new: true,
+  });
+
+  if (!updated) {
+    if (userdata.image) {
+      unlinkFile(userdata.image);
+    }
+    throw new AppError(status.BAD_REQUEST, "Failed to update user info.");
+  }
+
+  if (updated._id) {
+    if (oldImage) {
+      unlinkFile(oldImage);
+    }
+  }
+
+  return updated;
+};
+
+export const UserProfileService = {
+  updateProfileData,
+  updateProfileImage,
+  updateProfile,
+};

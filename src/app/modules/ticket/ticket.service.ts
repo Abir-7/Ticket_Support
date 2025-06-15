@@ -338,6 +338,7 @@ const getTicketById = async (ticketId: string, user: IAuthData) => {
 const updateTicketStatus = async (
   ticketId: string,
   tStatus: TicketStatus,
+  rejectedReason: string,
   userId: string
 ) => {
   const session = await mongoose.startSession();
@@ -398,6 +399,10 @@ const updateTicketStatus = async (
       { $addToSet: { members: userId } },
       { session }
     );
+
+    if (tStatus === TicketStatus.Rejected && !!rejectedReason) {
+      ticketData.rejectedReason = rejectedReason;
+    }
 
     await Notification.create(
       [
