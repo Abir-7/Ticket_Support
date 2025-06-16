@@ -436,6 +436,7 @@ const reSendOtp = async (userEmail: string): Promise<{ message: string }> => {
   await sendEmail(userEmail, "Verification Code", `CODE: ${OTP}`);
   return { message: "Verification code send." };
 };
+
 export const AuthService = {
   createUser,
   userLogin,

@@ -35,9 +35,8 @@ const updateProfileImage = async (path: string, email: string) => {
 
   if (image && userProfile.image) {
     unlinkFile(userProfile.image);
-
-    userProfile.image = image;
   }
+  userProfile.image = image;
 
   return await userProfile.save();
 };
