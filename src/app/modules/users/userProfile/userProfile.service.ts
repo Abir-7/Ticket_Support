@@ -10,6 +10,8 @@ import { removeFalsyFields } from "../../../utils/helper/removeFalsyField";
 import unlinkFile from "../../../middleware/fileUpload/unlinkFiles";
 
 const updateProfileImage = async (path: string, email: string) => {
+  console.log(path);
+
   const user = await User.findOne({ email: email });
 
   const image = getRelativePath(path);
@@ -95,7 +97,6 @@ const updateProfileData = async (
       unlinkFile(oldImage);
     }
   }
-
   return updated;
 };
 

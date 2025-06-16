@@ -381,6 +381,8 @@ const updatePassword = async (
     throw new AppError(status.NOT_FOUND, "User not found.");
   }
 
+  console.log(userId, passData);
+
   const isPassMatch = await user.comparePassword(old_password);
 
   if (!isPassMatch) {
