@@ -7,12 +7,15 @@ import { TUserRole } from "../../interface/auth.interface";
 import { jsonWebToken } from "../../utils/jwt/jwt";
 import { appConfig } from "../../config";
 import User from "../../modules/users/user/user.model";
+import logger from "../../utils/serverTool/logger";
 
 export const auth =
   (...userRole: TUserRole[]) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tokenWithBearer = req.headers.authorization as string;
+
+      logger.info(tokenWithBearer);
 
       if (!tokenWithBearer || !tokenWithBearer.startsWith("Bearer")) {
         return next(

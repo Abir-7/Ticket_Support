@@ -8,14 +8,13 @@ import { UserProfile } from "./userProfile.model";
 import { IUserProfile } from "./userProfile.interface";
 import { removeFalsyFields } from "../../../utils/helper/removeFalsyField";
 import unlinkFile from "../../../middleware/fileUpload/unlinkFiles";
+import logger from "../../../utils/serverTool/logger";
 
 const updateProfileImage = async (path: string, email: string) => {
-  console.log(path);
-
   const user = await User.findOne({ email: email });
 
   const image = getRelativePath(path);
-
+  logger.info(image);
   if (!image) {
     throw new AppError(status.NOT_FOUND, "Image not found.");
   }
