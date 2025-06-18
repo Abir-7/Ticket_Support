@@ -22,7 +22,7 @@ router.post(
   ProductController.createProduct
 );
 
-router.put(
+router.patch(
   "/:id",
   auth("ADMIN"),
   upload.single("image"),

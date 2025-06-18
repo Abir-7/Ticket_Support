@@ -3,7 +3,7 @@ import { IProduct } from "./product.interface";
 
 const productSchema = new Schema<IProduct>(
   {
-    model: { type: String, required: true, unique: true },
+    model: { type: String, required: true },
     image: { type: String, required: true },
     description: { type: String },
     isDeleted: { type: Boolean, default: false },
