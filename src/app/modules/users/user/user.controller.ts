@@ -30,8 +30,20 @@ const getMyData = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const deleteUser = catchAsync(async (req, res) => {
   const result = await UserService.deleteUser(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User deleted successfully.",
+    data: result,
+  });
+});
+
+const deleteMe = catchAsync(async (req, res) => {
+  const result = await UserService.deleteUser(req.user.userId);
 
   sendResponse(res, {
     success: true,
@@ -45,4 +57,5 @@ export const UserController = {
   getMyData,
   deleteUser,
   getAllUser,
+  deleteMe,
 };
