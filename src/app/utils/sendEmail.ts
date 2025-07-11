@@ -22,7 +22,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
     });
 
     const info = await transporter.sendMail({
-      from: `"AiFinanceHub" ${appConfig.email.from}`, // Sender address
+      from: `"DMR-Technologies" ${appConfig.email.from}`, // Sender address
       to: email, // Recipient's email
       subject: `${subject}`,
       text: text,
@@ -54,7 +54,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
     
             /* Header styles */
             .header {
-              background-color: #caccd1; /* New blue background */
+              background-color:  #5988ffff; /* New blue background */
               padding: 20px;
               border-radius: 10px 10px 0 0;
               color: #000000;
@@ -75,7 +75,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
     
             /* Footer styles */
             .footer {
-              background-color: #caccd1; /* New green background */
+              background-color: #5988ffff; /* New green background */
               padding: 15px;
               border-radius: 0 0 10px 10px;
               text-align: center;
@@ -115,7 +115,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
               <p>${text}</p>
             </div>
             <div class="footer">
-              <p>&copy; ${new Date().getFullYear()} AiFinanceHub. All rights reserved.</p>
+              <p>&copy; ${new Date().getFullYear()} DMR-Technologies. All rights reserved.</p>
             </div>
           </div>
         </body>
