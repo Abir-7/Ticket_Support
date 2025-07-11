@@ -28,7 +28,7 @@ process.on("SIGTERM", async () => {
 const main = async () => {
   await mongoose.connect(appConfig.database.dataBase_uri as string);
   logger.info("MongoDB connected");
-  await startConsumers();
+  startConsumers();
   await seedAdmin();
   server.listen(
     Number(appConfig.server.port),
