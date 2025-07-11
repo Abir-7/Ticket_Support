@@ -1,4 +1,4 @@
-import { sendEmail } from "../utils/sendEmail";
+import { sendEmailByResend } from "../utils/sendEmail";
 import logger from "../utils/serverTool/logger";
 
 import { consumeQueue } from "./consumer";
@@ -10,7 +10,7 @@ export const startConsumers = async () => {
     const { to, subject, body } = job;
     try {
       logger.info(`Processing job: ${to}, ${subject} ,${body}`);
-      await sendEmail(to, subject, body);
+      await sendEmailByResend(to, subject, body);
       logger.info(`Processing job done: ${to}, ${subject} ,${body}`);
     } catch (error) {
       logger.error("Error processing the job:", error);

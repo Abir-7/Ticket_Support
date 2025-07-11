@@ -26,6 +26,7 @@ export const appConfig = {
     port: parseInt(process.env.EMAIL_PORT as string),
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+    re_send_api_key: process.env.RESEND_API_KEY,
   },
   multer: {
     file_size_limit: process.env.MAX_FILE_SIZE,
