@@ -95,11 +95,11 @@ const createUser = async (
       );
     }
 
-    // await sendEmail(
-    //   data.email,
-    //   "Email Verification Code",
-    //   `Your code is: ${otp}`
-    // );
+    await sendEmail(
+      data.email,
+      "Email Verification Code",
+      `Your code is: ${otp}`
+    );
 
     await publishJob("emailQueue", {
       to: data.email,
