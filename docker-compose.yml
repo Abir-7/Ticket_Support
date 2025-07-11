@@ -1,11 +1,15 @@
-version: '3.8'
+
 
 services:
-  redis:
-    image: redis
-    container_name: ticket-support-redis-queue
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
-      - "6379:6379"
+      - "5673:5672"  # Changed left port to avoid conflict with old project
+      - "15673:15672" # Changed left port to avoid conflict with old project
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
   express:
     build: .
@@ -15,7 +19,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
+      - rabbitmq
 
     volumes:
       - .:/app

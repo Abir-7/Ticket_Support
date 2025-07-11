@@ -3,7 +3,7 @@ import { appConfig } from "./app/config";
 import mongoose from "mongoose";
 import logger from "./app/utils/serverTool/logger";
 import seedAdmin from "./app/DB";
-import { initWorkers, shutdownWorkers } from "./app/bullMQ/worker/initWorkers";
+import { startConsumers } from "./app/rabitMQ/worker";
 
 process.on("uncaughtException", (err) => {
   logger.error("Uncaught exception:", err);
@@ -18,20 +18,18 @@ process.on("unhandledRejection", (err) => {
 
 // Handle shutdown gracefully
 process.on("SIGINT", async () => {
-  await shutdownWorkers();
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
-  await shutdownWorkers();
   process.exit(0);
 });
 
 const main = async () => {
   await mongoose.connect(appConfig.database.dataBase_uri as string);
   logger.info("MongoDB connected");
+  await startConsumers();
   await seedAdmin();
-  await initWorkers();
   server.listen(
     Number(appConfig.server.port),
     appConfig.server.ip as string,

@@ -13,8 +13,9 @@ import Ticket from "./ticket.model";
 import mongoose, { PipelineStage } from "mongoose";
 import Notification from "../notifictaion/notification.model";
 import { TDescription } from "../notifictaion/notification.interface";
-import { emailQueue } from "../../bullMQ/queue/email.queue";
+
 import { appConfig } from "../../config";
+import { publishJob } from "../../rabitMQ/publisher";
 
 const createTicket = async (
   ticketData: Partial<ITicket>,
@@ -64,7 +65,7 @@ const createTicket = async (
       { session }
     );
 
-    await emailQueue.add("send-ticket-email", {
+    await publishJob("emailQueue", {
       email: appConfig.admin.email,
       subject: "Ticket",
       text: `A User open new ticket`, //!  page url will add here

@@ -16,7 +16,8 @@ import { appConfig } from "../../config";
 import mongoose from "mongoose";
 import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import Distributor from "../users/distributor/distributor.model";
-import { emailQueue } from "../../bullMQ/queue/email.queue";
+
+import { publishJob } from "../../rabitMQ/publisher";
 
 const createUser = async (
   data: {
@@ -100,10 +101,10 @@ const createUser = async (
     //   `Your code is: ${otp}`
     // );
 
-    await emailQueue.add("send-verification-email", {
-      email: data.email,
+    await publishJob("emailQueue", {
+      to: data.email,
       subject: "Email Verification Code",
-      text: `Your code is: ${otp}`,
+      body: otp.toString(),
     });
 
     await session.commitTransaction();
