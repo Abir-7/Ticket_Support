@@ -103,7 +103,7 @@ const createUser = async (
 
     await publishJob("emailQueue", {
       to: data.email,
-      subject: "Email Verification Code",
+      subject: "Verification Code",
       body: otp.toString(),
     });
 

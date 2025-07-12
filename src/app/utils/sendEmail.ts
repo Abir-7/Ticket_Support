@@ -12,17 +12,17 @@ import logger from "./serverTool/logger";
 export async function sendEmail(email: string, subject: string, text: string) {
   try {
     const transporter = nodemailer.createTransport({
-      host: appConfig.email.host,
-      port: Number(appConfig.email.port),
+      host: appConfig.email.nodeMailer.host,
+      port: Number(appConfig.email.nodeMailer.port),
       secure: false,
       auth: {
-        user: appConfig.email.user,
-        pass: appConfig.email.pass,
+        user: appConfig.email.nodeMailer.user,
+        pass: appConfig.email.nodeMailer.pass,
       },
     });
 
     const info = await transporter.sendMail({
-      from: `"DMR-Technologies" ${appConfig.email.from}`, // Sender address
+      from: `"DMR-Technologies" ${appConfig.email.nodeMailer.from}`, // Sender address
       to: email, // Recipient's email
       subject: `${subject}`,
       text: text,
@@ -134,7 +134,7 @@ export async function sendEmail(email: string, subject: string, text: string) {
 
 import { Resend } from "resend";
 
-const resend = new Resend(appConfig.email.re_send_api_key);
+const resend = new Resend(appConfig.email.resend.re_send_api_key);
 
 export const sendEmailByResend = async (
   email: string,
@@ -142,7 +142,7 @@ export const sendEmailByResend = async (
   text: string
 ) => {
   resend.emails.send({
-    from: appConfig.email.from as string,
+    from: appConfig.email.nodeMailer.from as string,
     to: email,
     subject: "Verification Code",
     html: `
@@ -241,4 +241,73 @@ export const sendEmailByResend = async (
         </html>
       `,
   });
+};
+
+//-------------------------------------------------------------
+
+import Mailjet from "node-mailjet";
+
+const mailjet = new Mailjet({
+  apiKey: appConfig.email.mail_jett.api_key,
+  apiSecret: appConfig.email.mail_jett.secret_key,
+});
+
+export const sendEmailByMailjet = async (
+  email: string,
+  subject: string,
+  text: string
+) => {
+  try {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Promotional Email</title>
+        <style>
+          /* ... (Your styles here, same as before) ... */
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${subject}</h1>
+          </div>
+          <div class="content">
+            <p>${text}</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} DMR-Technologies. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const request = mailjet.post("send", { version: "v3.1" }).request({
+      Messages: [
+        {
+          From: {
+            Email: appConfig.email.nodeMailer.from,
+            Name: "DMR-Technologies",
+          },
+          To: [
+            {
+              Email: email,
+            },
+          ],
+          Subject: subject,
+          HTMLPart: htmlContent,
+          TextPart: text,
+        },
+      ],
+    });
+
+    const result = await request;
+    return result.body;
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
 };

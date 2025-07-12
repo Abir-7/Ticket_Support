@@ -21,12 +21,20 @@ export const appConfig = {
     salt_round: process.env.SALT_ROUND,
   },
   email: {
-    from: process.env.EMAIL_FROM,
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT as string),
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-    re_send_api_key: process.env.RESEND_API_KEY,
+    nodeMailer: {
+      from: process.env.EMAIL_FROM,
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT as string),
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    resend: {
+      re_send_api_key: process.env.RESEND_API_KEY,
+    },
+    mail_jett: {
+      secret_key: process.env.SECRET_KEY,
+      api_key: process.env.API_KEY,
+    },
   },
   multer: {
     file_size_limit: process.env.MAX_FILE_SIZE,
