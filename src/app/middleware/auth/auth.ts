@@ -48,7 +48,7 @@ export const auth =
         return next(
           new AppError(
             status.UNAUTHORIZED,
-            "You are not authorized. User deleted"
+            "User not exist. You have to signup."
           )
         );
       }
