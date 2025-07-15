@@ -43,6 +43,7 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const deleteMe = catchAsync(async (req, res) => {
+  console.log(req.user);
   const result = await UserService.deleteUser(req.user.userId);
 
   sendResponse(res, {
