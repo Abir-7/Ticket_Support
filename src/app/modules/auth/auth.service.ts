@@ -37,11 +37,14 @@ const createUser = async (
   try {
     const isExist = await User.findOne({ email: data.email }).session(session);
 
-    if (isExist && isExist.isVerified === true) {
+    if (isExist && isExist.isVerified === true && isExist.isDeleted === false) {
       throw new AppError(status.BAD_REQUEST, "User already exist");
     }
 
-    if (isExist && isExist.isVerified === false) {
+    if (
+      (isExist && isExist.isVerified === false) ||
+      isExist?.isDeleted === true
+    ) {
       const isDistributorExist = await Distributor.findOne({
         user: isExist._id,
       });
