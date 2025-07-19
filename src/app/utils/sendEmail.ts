@@ -245,69 +245,38 @@ export const sendEmailByResend = async (
 
 //-------------------------------------------------------------
 
-import Mailjet from "node-mailjet";
+import sgMail from "@sendgrid/mail";
 
-const mailjet = new Mailjet({
-  apiKey: appConfig.email.mail_jett.api_key,
-  apiSecret: appConfig.email.mail_jett.secret_key,
-});
+sgMail.setApiKey(appConfig.email.sand_grid.api_key as string); // Store in .env file
 
-export const sendEmailByMailjet = async (
+export async function sendEmailBySandGrid(
   email: string,
   subject: string,
   text: string
-) => {
+) {
+  console.log(email, appConfig.email.nodeMailer.from, subject, text);
   try {
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Promotional Email</title>
-        <style>
-          /* ... (Your styles here, same as before) ... */
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>${subject}</h1>
-          </div>
-          <div class="content">
-            <p>${text}</p>
-          </div>
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} DMR-Technologies. All rights reserved.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    const msg = {
+      to: email as string,
+      from: appConfig.email.nodeMailer.from as string, // Must be a verified sender
+      subject: subject as string,
+      text: text,
+      html: `
+        <html>
+        <body>
+          <h1>${subject}</h1>
+          <p>${text}</p>
+          <footer style="margin-top: 20px; color: gray;">
+            &copy; ${new Date().getFullYear()} DMR-Technologies. All rights reserved.
+          </footer>
+        </body>
+        </html>
+      `,
+    };
 
-    const request = mailjet.post("send", { version: "v3.1" }).request({
-      Messages: [
-        {
-          From: {
-            Email: appConfig.email.nodeMailer.from,
-            Name: "DMR-Technologies",
-          },
-          To: [
-            {
-              Email: email,
-            },
-          ],
-          Subject: subject,
-          HTMLPart: htmlContent,
-          TextPart: text,
-        },
-      ],
-    });
-
-    const result = await request;
-    return result.body;
-  } catch (err) {
-    logger.error(err);
-    throw err;
+    await sgMail.send(msg);
+  } catch (error: any) {
+    console.error("SendGrid Error:", error);
+    throw new Error("Error sending email");
   }
-};
+}

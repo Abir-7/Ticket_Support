@@ -35,6 +35,9 @@ export const appConfig = {
       secret_key: process.env.SECRET_KEY,
       api_key: process.env.API_KEY,
     },
+    sand_grid: {
+      api_key: process.env.SG_API_KEY,
+    },
   },
   multer: {
     file_size_limit: process.env.MAX_FILE_SIZE,
