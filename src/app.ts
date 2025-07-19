@@ -14,7 +14,12 @@ import morgan from "morgan";
 const app = express();
 
 const corsOption = {
-  origin: ["http://localhost:5173", "http://localhost:3000", "*"],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://157.245.9.24:5173/",
+    "*",
+  ],
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
   credentials: true,
 };
