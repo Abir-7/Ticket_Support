@@ -14,7 +14,7 @@ export const auth =
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tokenWithBearer = req.headers.authorization as string;
-
+      logger.info(tokenWithBearer);
       logger.info(tokenWithBearer);
 
       if (!tokenWithBearer || !tokenWithBearer.startsWith("Bearer")) {
