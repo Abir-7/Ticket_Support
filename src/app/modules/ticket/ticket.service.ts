@@ -66,7 +66,7 @@ const createTicket = async (
     );
 
     await publishJob("emailQueue", {
-      email: appConfig.admin.email,
+      email: appConfig.email.nodeMailer.from,
       subject: "Ticket",
       text: `A User open new ticket`, //!  page url will add here
     });
