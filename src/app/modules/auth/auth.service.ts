@@ -18,6 +18,7 @@ import { isTimeExpired } from "../../utils/helper/isTimeExpire";
 import Distributor from "../users/distributor/distributor.model";
 
 import { publishJob } from "../../rabitMQ/publisher";
+import logger from "../../utils/serverTool/logger";
 
 const createUser = async (
   data: {
@@ -130,9 +131,12 @@ const userLogin = async (loginData: {
   email: string;
   password: string;
 }): Promise<{ accessToken: string; userData: any; refreshToken: string }> => {
+  logger.info(JSON.stringify(loginData));
+
   const userData = await User.findOne({ email: loginData.email }).select(
     "+password"
   );
+
   if (!userData) {
     throw new AppError(status.BAD_REQUEST, "Please check your email");
   }
