@@ -4,6 +4,7 @@ import catchAsync from "../../utils/serverTool/catchAsync";
 import sendResponse from "../../utils/serverTool/sendResponse";
 import { AuthService } from "./auth.service";
 import { appConfig } from "../../config";
+import logger from "../../utils/serverTool/logger";
 
 const createUser = catchAsync(async (req, res) => {
   const userData = req.body;
@@ -18,14 +19,13 @@ const createUser = catchAsync(async (req, res) => {
 });
 
 const userLogin = catchAsync(async (req, res, next) => {
-  console.log("object");
   const result = await AuthService.userLogin(req.body);
 
   res.cookie("refreshToken", result.refreshToken, {
     secure: appConfig.server.node_env === "production",
     httpOnly: true,
   });
-
+  logger.info(JSON.stringify(result));
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
