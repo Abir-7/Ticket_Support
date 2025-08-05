@@ -19,7 +19,7 @@ const corsOption = {
     "http://localhost:3000",
     "http://157.245.9.24:5173",
     "http://157.245.9.24:5174",
-    "http://157.245.9.24:5175"
+    "http://157.245.9.24:5175",
     "*",
   ],
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
