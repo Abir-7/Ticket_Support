@@ -21,6 +21,8 @@ const corsOption = {
     "http://157.245.9.24:5174",
     "http://157.245.9.24:5175",
 
+    "https://ticket.dmrdrones.com",
+
     "*",
   ],
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
