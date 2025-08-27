@@ -1,27 +1,49 @@
 
 
+# services:
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5678:5672"  # Changed left port to avoid conflict with old project
+#       - "15678:15672" # Changed left port to avoid conflict with old project
+#     environment:
+#       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+#       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+#   express:
+#     build: .
+#     container_name: ticket-support-express-app
+#     ports:
+#       - "5001:5002"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - rabbitmq
+
+#     volumes:
+#       - .:/app
+#       - /app/node_modules
+#     command: npm run dev  # or `npm run start` depending on your setup
+
 services:
+  backend:
+    container_name: ticket-support-express-app
+    build: .
+    ports:
+      - "5002:5002"
+    networks:
+      - ticket-net
+
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: ticket-rabbitmq
     ports:
-      - "5678:5672"  # Changed left port to avoid conflict with old project
-      - "15678:15672" # Changed left port to avoid conflict with old project
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ticket-net
 
-  express:
-    build: .
-    container_name: ticket-support-express-app
-    ports:
-      - "5001:5002"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run dev  # or `npm run start` depending on your setup
+networks:
+  ticket-net:
+    driver: bridge
