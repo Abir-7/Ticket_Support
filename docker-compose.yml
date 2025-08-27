@@ -32,6 +32,9 @@ services:
     build: .
     ports:
       - "5002:5002"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ticket-net
 
@@ -43,6 +46,11 @@ services:
       - "15672:15672"
     networks:
       - ticket-net
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
 
 networks:
   ticket-net:
